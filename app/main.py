@@ -10,139 +10,161 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Standard, Clean & Smooth UI Styling (Soft Tones, Zero Harsh Contrast)
+# Light Professional Theme (Clean Whites, Soft Slate, Subtle Borders)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
-        color: #1e293b;
+    /* Enforce Pure Light Theme */
+    html, body, [class*="css"], .stApp {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: #ffffff !important;
+        color: #1e293b !important;
     }
 
-    /* Clean Subtle Header */
+    /* Clean Sidebar */
+    section[data-testid="stSidebar"] {
+        background-color: #f8fafc !important;
+        border-right: 1px solid #e2e8f0 !important;
+    }
+    section[data-testid="stSidebar"] h3 {
+        color: #0f172a !important;
+        font-weight: 600 !important;
+    }
+
+    /* Header Box */
     .header-box {
-        padding: 1.5rem 0 1rem 0;
+        padding: 1.25rem 0 1.25rem 0;
         border-bottom: 1px solid #e2e8f0;
-        margin-bottom: 1.8rem;
+        margin-bottom: 1.75rem;
     }
     .header-title {
-        font-size: 1.75rem;
+        font-size: 1.65rem;
         font-weight: 700;
         color: #0f172a;
-        margin-bottom: 0.35rem;
+        margin-bottom: 0.25rem;
         display: flex;
         align-items: center;
-        gap: 0.6rem;
+        gap: 0.5rem;
+        letter-spacing: -0.3px;
     }
     .header-subtitle {
         font-size: 0.95rem;
         color: #64748b;
         margin: 0;
+        font-weight: 400;
     }
 
-    /* Clean Card Container */
-    .form-card {
-        background-color: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 1.25rem 1.5rem;
-        margin-bottom: 1.25rem;
-    }
-    .form-card-title {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #334155;
-        margin-bottom: 1rem;
+    /* Section Subheading */
+    .section-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #475569;
+        margin-bottom: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
         display: flex;
         align-items: center;
         gap: 0.4rem;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
     }
 
-    /* Result Dashboard - Soft, Calm Colors */
+    /* Clean Grouping Container */
+    .form-group-card {
+        background-color: #fafafa;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    /* Professional Button */
+    div.stButton > button:first-child {
+        background-color: #2563eb !important;
+        color: #ffffff !important;
+        border: 1px solid #2563eb !important;
+        border-radius: 8px !important;
+        padding: 0.65rem 1.5rem !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+        transition: all 0.15s ease-in-out !important;
+    }
+    div.stButton > button:first-child:hover {
+        background-color: #1d4ed8 !important;
+        border-color: #1d4ed8 !important;
+        color: #ffffff !important;
+    }
+
+    /* Result Dashboard Container */
     .result-container {
-        background: #ffffff;
+        background-color: #ffffff;
         border: 1px solid #e2e8f0;
-        border-radius: 14px;
+        border-radius: 12px;
         padding: 1.75rem;
         margin-top: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
     }
 
     .score-card {
         text-align: center;
-        padding: 1.25rem;
+        padding: 1.25rem 1rem;
         border-radius: 10px;
-        background: #f8fafc;
+        background-color: #f8fafc;
         border: 1px solid #e2e8f0;
     }
     .score-label {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.6px;
         color: #64748b;
         font-weight: 600;
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.35rem;
     }
     .score-number {
         font-size: 2.25rem;
         font-weight: 700;
         color: #0f172a;
-        line-height: 1.2;
+        line-height: 1.1;
     }
     .score-scale {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: #94a3b8;
+        margin-top: 0.25rem;
     }
 
-    /* Soft Risk Badges */
-    .badge-excellent {
+    /* Soft Professional Badges */
+    .badge-pill {
         display: inline-block;
-        background-color: #ecfdf5;
-        color: #047857;
-        padding: 0.35rem 0.85rem;
-        border-radius: 20px;
+        padding: 0.35rem 0.9rem;
+        border-radius: 9999px;
         font-weight: 600;
         font-size: 0.85rem;
+    }
+    .badge-excellent {
+        background-color: #ecfdf5;
+        color: #047857;
         border: 1px solid #a7f3d0;
     }
     .badge-good {
-        display: inline-block;
         background-color: #f0fdf4;
         color: #15803d;
-        padding: 0.35rem 0.85rem;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.85rem;
         border: 1px solid #bbf7d0;
     }
     .badge-average {
-        display: inline-block;
         background-color: #fffbeb;
         color: #b45309;
-        padding: 0.35rem 0.85rem;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.85rem;
         border: 1px solid #fde68a;
     }
     .badge-poor {
-        display: inline-block;
         background-color: #fef2f2;
         color: #b91c1c;
-        padding: 0.35rem 0.85rem;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.85rem;
         border: 1px solid #fecaca;
     }
 
-    /* Clean Decision Banner */
+    /* Soft Decision Directives */
     .decision-banner {
         padding: 1rem 1.25rem;
-        border-radius: 10px;
+        border-radius: 8px;
         margin-top: 1.25rem;
         font-size: 0.95rem;
         font-weight: 500;
@@ -168,14 +190,14 @@ st.markdown("""
         border-left: 4px solid #ef4444;
     }
 
-    /* Ratio Box */
+    /* Clean Subtle Metric Chip */
     .metric-inline {
-        padding: 0.6rem 0.8rem;
+        padding: 0.65rem 0.85rem;
         border-radius: 8px;
         background-color: #f1f5f9;
         font-size: 0.85rem;
         color: #475569;
-        font-weight: 500;
+        border: 1px solid #e2e8f0;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -199,7 +221,7 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### 📋 Application Guidelines")
     st.markdown("""
-    - **Score Range**: 300 (Higher Risk) to 900 (Lower Risk).
+    - **Score Range**: 300 to 900.
     - **Healthy Utilization**: Below 30% credit card usage is ideal.
     - **Loan to Income**: A lower ratio signifies better repayment capacity.
     """)
@@ -241,7 +263,7 @@ col_applicant, col_bureau = st.columns([1, 1], gap="large")
 
 with col_applicant:
     st.markdown("""
-    <div class="form-card-title">👤 Applicant & Loan Details</div>
+    <div class="section-title">👤 Applicant & Loan Details</div>
     """, unsafe_allow_html=True)
     
     r1_c1, r1_c2 = st.columns(2)
@@ -264,13 +286,13 @@ with col_applicant:
         st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
         st.markdown(f"""
         <div class="metric-inline">
-            Loan to Income (LTI): <strong>{lti_ratio:.2f}x</strong>
+            Loan to Income: <strong>{lti_ratio:.2f}x</strong>
         </div>
         """, unsafe_allow_html=True)
 
 with col_bureau:
     st.markdown("""
-    <div class="form-card-title">📊 Credit & Repayment History</div>
+    <div class="section-title">📊 Credit & Repayment History</div>
     """, unsafe_allow_html=True)
 
     b1_c1, b1_c2 = st.columns(2)
@@ -281,7 +303,7 @@ with col_bureau:
         avg_dpd_per_delinquency = st.number_input("Avg Overdue Days (DPD)", min_value=0, max_value=365, value=def_dpd, step=1)
         num_open_accounts = st.number_input("Active Credit Accounts", min_value=1, max_value=10, value=def_open_acc, step=1)
 
-    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
     st.caption("Tip: Applicants with consistent on-time payments and utilization below 30% typically achieve higher credit scores.")
 
 # ----------------- ACTION BUTTON -----------------
@@ -299,19 +321,19 @@ if evaluate_click:
 
     # Clean, Standard Tier Styling (Soft Tones)
     if rating == "Excellent":
-        badge_html = '<span class="badge-excellent">Excellent Credit</span>'
+        badge_html = '<span class="badge-pill badge-excellent">Excellent Credit</span>'
         decision_class = "decision-excellent"
         decision_text = "Approved — Prime eligibility with preferred terms and standard processing."
     elif rating == "Good":
-        badge_html = '<span class="badge-good">Good Credit</span>'
+        badge_html = '<span class="badge-pill badge-good">Good Credit</span>'
         decision_class = "decision-good"
         decision_text = "Approved — Qualifies for standard loan products and terms."
     elif rating == "Average":
-        badge_html = '<span class="badge-average">Moderate Credit</span>'
+        badge_html = '<span class="badge-pill badge-average">Moderate Credit</span>'
         decision_class = "decision-average"
         decision_text = "Review Recommended — Standard approval subject to additional document or income verification."
     else:
-        badge_html = '<span class="badge-poor">High Risk</span>'
+        badge_html = '<span class="badge-pill badge-poor">High Risk</span>'
         decision_class = "decision-poor"
         decision_text = "Eligibility Criteria Not Met — High likelihood of default based on current profile."
 
