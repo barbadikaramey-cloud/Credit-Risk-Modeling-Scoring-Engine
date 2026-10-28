@@ -1,0 +1,127 @@
+import os
+import warnings
+import joblib
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+
+# Suppress scikit-learn cross-version unpickling warnings
+warnings.filterwarnings("ignore")
+
+# Find model path dynamically across different working directories
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+_CANDIDATE_PATHS = [
+    os.path.join(_BASE_DIR, 'artifacts', 'model_data.joblib'),
+    os.path.join(_BASE_DIR, '..', 'artifacts', 'model_data.joblib'),
+    'artifacts/model_data.joblib',
+    'app/artifacts/model_data.joblib'
+]
+
+MODEL_PATH = None
+for path in _CANDIDATE_PATHS:
+    if os.path.exists(path):
+        MODEL_PATH = path
+        break
+
+if MODEL_PATH is None:
+    raise FileNotFoundError("Could not locate 'model_data.joblib' in candidate paths.")
+
+# Load the model and its components
+model_data = joblib.load(MODEL_PATH)
+model = model_data['model']
+scaler = model_data['scaler']
+features = model_data['features']
+cols_to_scale = model_data['cols_to_scale']
+
+
+def prepare_input(age, income, loan_amount, loan_tenure_months, avg_dpd_per_delinquency,
+                  delinquency_ratio, credit_utilization_ratio, num_open_accounts, residence_type,
+                  loan_purpose, loan_type):
+    """
+    Prepares and scales the raw input feature dictionary to match the model schema.
+    """
+    # Create a dictionary with input values and dummy values for missing features required by scaler
+    input_data = {
+        'age': age,
+        'loan_tenure_months': loan_tenure_months,
+        'number_of_open_accounts': num_open_accounts,
+        'credit_utilization_ratio': credit_utilization_ratio,
+        'loan_to_income': loan_amount / income if income > 0 else 0,
+        'delinquency_ratio': delinquency_ratio,
+        'avg_dpd_per_delinquency': avg_dpd_per_delinquency,
+        'residence_type_Owned': 1 if residence_type == 'Owned' else 0,
+        'residence_type_Rented': 1 if residence_type == 'Rented' else 0,
+        'loan_purpose_Education': 1 if loan_purpose == 'Education' else 0,
+        'loan_purpose_Home': 1 if loan_purpose == 'Home' else 0,
+        'loan_purpose_Personal': 1 if loan_purpose == 'Personal' else 0,
+        'loan_type_Unsecured': 1 if loan_type == 'Unsecured' else 0,
+        # Additional baseline fields retained to align with the fitted MinMaxScaler
+        'number_of_dependants': 1,
+        'years_at_current_address': 1,
+        'zipcode': 1,
+        'sanction_amount': 1,
+        'processing_fee': 1,
+        'gst': 1,
+        'net_disbursement': 1,
+        'principal_outstanding': 1,
+        'bank_balance_at_application': 1,
+        'number_of_closed_accounts': 1,
+        'enquiry_count': 1
+    }
+
+    # Ensure all columns for features and cols_to_scale are present
+    df = pd.DataFrame([input_data])
+
+    # Ensure only required columns for scaling are scaled
+    df[cols_to_scale] = scaler.transform(df[cols_to_scale])
+
+    # Filter to only the features expected by the final model
+    df = df[features]
+
+    return df
+
+
+def predict(age, income, loan_amount, loan_tenure_months, avg_dpd_per_delinquency,
+            delinquency_ratio, credit_utilization_ratio, num_open_accounts,
+            residence_type, loan_purpose, loan_type):
+    """
+    Computes default probability, calibrated credit score, and risk rating category.
+    """
+    input_df = prepare_input(age, income, loan_amount, loan_tenure_months, avg_dpd_per_delinquency,
+                             delinquency_ratio, credit_utilization_ratio, num_open_accounts,
+                             residence_type, loan_purpose, loan_type)
+
+    probability, credit_score, rating = calculate_credit_score(input_df)
+
+    return probability, credit_score, rating
+
+
+def calculate_credit_score(input_df, base_score=300, scale_length=600):
+    """
+    Calculates log-odds, default probability, and scales to a standard 300-900 credit score.
+    """
+    x = np.dot(input_df.values, model.coef_.T) + model.intercept_
+
+    # Apply sigmoid / logistic function
+    default_probability = 1 / (1 + np.exp(-x))
+    non_default_probability = 1 - default_probability
+
+    # Convert probability to credit score (300 to 900 scale)
+    credit_score = base_score + non_default_probability.flatten() * scale_length
+
+    # Determine risk category based on credit score
+    def get_rating(score):
+        if 300 <= score < 500:
+            return 'Poor'
+        elif 500 <= score < 650:
+            return 'Average'
+        elif 650 <= score < 750:
+            return 'Good'
+        elif 750 <= score <= 900:
+            return 'Excellent'
+        else:
+            return 'Undefined'
+
+    rating = get_rating(credit_score[0])
+
+    return default_probability.flatten()[0], int(credit_score[0]), rating
