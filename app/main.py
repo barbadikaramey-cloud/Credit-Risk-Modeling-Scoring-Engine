@@ -1,498 +1,409 @@
-import os
 import streamlit as st
 import pandas as pd
 from prediction_helper import predict
 
-# Page configuration
+# Page Configuration - Clean, Standard Title and Layout
 st.set_page_config(
     page_title="Credit Risk Modeling & Scoring Engine",
-    page_icon="🏦",
+    page_icon="💳",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom High-End CSS Styling
+# Standard, Clean & Smooth UI Styling (Soft Tones, Zero Harsh Contrast)
 st.markdown("""
 <style>
-    /* Global Styles */
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-    
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
     html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    
-    /* Header Card */
-    .hero-container {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f766e 100%);
-        padding: 2.2rem 2.5rem;
-        border-radius: 18px;
-        color: #ffffff;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.35);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .hero-title {
-        font-size: 2.1rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        margin-bottom: 0.5rem;
-        color: #f8fafc;
-    }
-    .hero-subtitle {
-        font-size: 1.05rem;
-        color: #cbd5e1;
-        font-weight: 400;
-        line-height: 1.5;
-        margin-bottom: 1.2rem;
-    }
-    .badge-pill {
-        display: inline-block;
-        padding: 0.3rem 0.85rem;
-        border-radius: 9999px;
-        font-size: 0.78rem;
-        font-weight: 600;
-        margin-right: 0.5rem;
-        margin-bottom: 0.3rem;
-        background: rgba(255, 255, 255, 0.12);
-        color: #e2e8f0;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    .badge-pill-accent {
-        background: rgba(45, 212, 191, 0.18);
-        color: #5eead4;
-        border: 1px solid rgba(45, 212, 191, 0.35);
+        font-family: 'Inter', sans-serif;
+        color: #1e293b;
     }
 
-    /* Section Card Containers */
-    .section-card {
-        background: #ffffff;
-        padding: 1.6rem 1.8rem;
-        border-radius: 14px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-        margin-bottom: 1.5rem;
+    /* Clean Subtle Header */
+    .header-box {
+        padding: 1.5rem 0 1rem 0;
+        border-bottom: 1px solid #e2e8f0;
+        margin-bottom: 1.8rem;
     }
-    @media (prefers-color-scheme: dark) {
-        .section-card {
-            background: #1e293b;
-            border-color: #334155;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-        }
-    }
-    .section-header {
-        font-size: 1.15rem;
+    .header-title {
+        font-size: 1.75rem;
         font-weight: 700;
-        margin-bottom: 1.2rem;
+        color: #0f172a;
+        margin-bottom: 0.35rem;
         display: flex;
         align-items: center;
         gap: 0.6rem;
     }
-
-    /* Result Dashboard Cards */
-    .metric-card {
-        padding: 1.5rem;
-        border-radius: 14px;
-        text-align: center;
-        margin-bottom: 1rem;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-        background: #ffffff;
-    }
-    @media (prefers-color-scheme: dark) {
-        .metric-card {
-            background: #1e293b;
-            border-color: #334155;
-        }
-    }
-    .metric-title {
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
+    .header-subtitle {
+        font-size: 0.95rem;
         color: #64748b;
-        margin-bottom: 0.5rem;
-    }
-    .metric-value {
-        font-size: 2.3rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        margin-bottom: 0.3rem;
+        margin: 0;
     }
 
-    /* Rating specific highlights */
-    .rating-excellent {
-        color: #10b981;
-        background: rgba(16, 185, 129, 0.08);
-        border: 1.5px solid #10b981;
+    /* Clean Card Container */
+    .form-card {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.25rem;
     }
-    .rating-good {
-        color: #3b82f6;
-        background: rgba(59, 130, 246, 0.08);
-        border: 1.5px solid #3b82f6;
-    }
-    .rating-average {
-        color: #f59e0b;
-        background: rgba(245, 158, 11, 0.08);
-        border: 1.5px solid #f59e0b;
-    }
-    .rating-poor {
-        color: #ef4444;
-        background: rgba(239, 68, 68, 0.08);
-        border: 1.5px solid #ef4444;
+    .form-card-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
     }
 
-    /* Live ratio badge */
-    .ratio-box {
-        padding: 0.75rem 1rem;
+    /* Result Dashboard - Soft, Calm Colors */
+    .result-container {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 1.75rem;
+        margin-top: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .score-card {
+        text-align: center;
+        padding: 1.25rem;
         border-radius: 10px;
         background: #f8fafc;
         border: 1px solid #e2e8f0;
-        margin-top: 0.5rem;
     }
-    @media (prefers-color-scheme: dark) {
-        .ratio-box {
-            background: #0f172a;
-            border-color: #334155;
-        }
+    .score-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    .score-number {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+    .score-scale {
+        font-size: 0.85rem;
+        color: #94a3b8;
+    }
+
+    /* Soft Risk Badges */
+    .badge-excellent {
+        display: inline-block;
+        background-color: #ecfdf5;
+        color: #047857;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: 1px solid #a7f3d0;
+    }
+    .badge-good {
+        display: inline-block;
+        background-color: #f0fdf4;
+        color: #15803d;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: 1px solid #bbf7d0;
+    }
+    .badge-average {
+        display: inline-block;
+        background-color: #fffbeb;
+        color: #b45309;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: 1px solid #fde68a;
+    }
+    .badge-poor {
+        display: inline-block;
+        background-color: #fef2f2;
+        color: #b91c1c;
+        padding: 0.35rem 0.85rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: 1px solid #fecaca;
+    }
+
+    /* Clean Decision Banner */
+    .decision-banner {
+        padding: 1rem 1.25rem;
+        border-radius: 10px;
+        margin-top: 1.25rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+    .decision-excellent {
+        background-color: #f0fdf4;
+        color: #166534;
+        border-left: 4px solid #22c55e;
+    }
+    .decision-good {
+        background-color: #f0fdf4;
+        color: #166534;
+        border-left: 4px solid #16a34a;
+    }
+    .decision-average {
+        background-color: #fffbeb;
+        color: #92400e;
+        border-left: 4px solid #f59e0b;
+    }
+    .decision-poor {
+        background-color: #fef2f2;
+        color: #991b1b;
+        border-left: 4px solid #ef4444;
+    }
+
+    /* Ratio Box */
+    .metric-inline {
+        padding: 0.6rem 0.8rem;
+        border-radius: 8px;
+        background-color: #f1f5f9;
+        font-size: 0.85rem;
+        color: #475569;
+        font-weight: 500;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ----------------- SIDEBAR -----------------
 with st.sidebar:
-    st.markdown("### 🏦 Credit Risk Engine")
-    st.caption("AI-Powered Risk Decisioning v1.2")
-    st.markdown("---")
-
-    st.subheader("⚡ Quick Applicant Presets")
+    st.markdown("### 💳 Quick Presets")
+    st.caption("Select a sample profile to quickly populate the form.")
+    
     preset_choice = st.selectbox(
-        "Load Sample Applicant Profile:",
+        "Borrower Profile:",
         [
-            "Custom Manual Entry",
-            "🌟 Prime Borrower (Low Risk)",
-            "⚖️ Near-Prime Applicant (Moderate Risk)",
-            "⚠️ Subprime Applicant (High Risk)"
+            "Custom Application",
+            "Low Risk Profile",
+            "Moderate Risk Profile",
+            "Elevated Risk Profile"
         ],
         index=0
     )
 
     st.markdown("---")
-    st.subheader("📌 System Specifications")
+    st.markdown("### 📋 Application Guidelines")
     st.markdown("""
-    - **Engine**: Logistic Regression Scorecard
-    - **Optimization**: Optuna Bayesian Search
-    - **Sampling**: SMOTE-Tomek Links
-    - **ROC-AUC**: `0.984` | **Gini**: `0.967`
-    - **Target Metric**: Probability of Default (PD)
-    - **Score Range**: 300 to 900
+    - **Score Range**: 300 (Higher Risk) to 900 (Lower Risk).
+    - **Healthy Utilization**: Below 30% credit card usage is ideal.
+    - **Loan to Income**: A lower ratio signifies better repayment capacity.
     """)
     st.markdown("---")
-    st.caption("© Credit Risk Modeling & Scoring Engine. All rights reserved.")
+    st.caption("Credit Risk Modeling & Scoring Engine")
 
-# Preset Default Value Mappings
-if preset_choice == "🌟 Prime Borrower (Low Risk)":
-    def_age, def_income, def_loan = 38, 2800000, 1500000
+# Map presets cleanly
+if preset_choice == "Low Risk Profile":
+    def_age, def_income, def_loan = 38, 2400000, 1200000
     def_tenure, def_dpd, def_delinq = 24, 0, 0
-    def_util, def_open_acc = 12, 2
+    def_util, def_open_acc = 15, 2
     def_res, def_purp, def_type = "Owned", "Home", "Secured"
-elif preset_choice == "⚖️ Near-Prime Applicant (Moderate Risk)":
-    def_age, def_income, def_loan = 29, 1200000, 2400000
-    def_tenure, def_dpd, def_delinq = 36, 15, 12
-    def_util, def_open_acc = 42, 3
+elif preset_choice == "Moderate Risk Profile":
+    def_age, def_income, def_loan = 29, 1200000, 2000000
+    def_tenure, def_dpd, def_delinq = 36, 10, 15
+    def_util, def_open_acc = 38, 3
     def_res, def_purp, def_type = "Rented", "Auto", "Secured"
-elif preset_choice == "⚠️ Subprime Applicant (High Risk)":
-    def_age, def_income, def_loan = 23, 480000, 2200000
-    def_tenure, def_dpd, def_delinq = 48, 55, 65
-    def_util, def_open_acc = 82, 4
+elif preset_choice == "Elevated Risk Profile":
+    def_age, def_income, def_loan = 24, 500000, 1800000
+    def_tenure, def_dpd, def_delinq = 48, 40, 50
+    def_util, def_open_acc = 75, 4
     def_res, def_purp, def_type = "Rented", "Personal", "Unsecured"
 else:
-    def_age, def_income, def_loan = 28, 1200000, 2560000
-    def_tenure, def_dpd, def_delinq = 36, 20, 30
+    def_age, def_income, def_loan = 28, 1200000, 2500000
+    def_tenure, def_dpd, def_delinq = 36, 15, 20
     def_util, def_open_acc = 30, 2
     def_res, def_purp, def_type = "Owned", "Education", "Unsecured"
 
-# ----------------- HERO HEADER -----------------
+# ----------------- MAIN HEADER -----------------
 st.markdown("""
-<div class="hero-container">
-    <div class="hero-title">🏦 Credit Risk Modeling & Scoring Engine</div>
-    <div class="hero-subtitle">
-        Enterprise-grade risk assessment platform translating borrower behavioral history, leverage, and demographics into calibrated Credit Scores and automated underwriting recommendations.
-    </div>
-    <div>
-        <span class="badge-pill badge-pill-accent">● Production Model v1.2</span>
-        <span class="badge-pill">ROC-AUC: 0.984</span>
-        <span class="badge-pill">Gini: 0.967</span>
-        <span class="badge-pill">SMOTE-Tomek Calibrated</span>
-        <span class="badge-pill">Basel II Compliant</span>
-    </div>
+<div class="header-box">
+    <div class="header-title">💳 Credit Risk Modeling & Scoring Engine</div>
+    <p class="header-subtitle">Evaluate loan applicant creditworthiness, calculate credit scores, and review loan eligibility.</p>
 </div>
 """, unsafe_allow_html=True)
 
-# ----------------- INPUT FORM -----------------
-col_left, col_right = st.columns([1, 1], gap="large")
+# ----------------- CLEAN INPUT FORM -----------------
+col_applicant, col_bureau = st.columns([1, 1], gap="large")
 
-with col_left:
-    st.markdown("### 👤 1. Applicant Profile & Loan Terms")
+with col_applicant:
+    st.markdown("""
+    <div class="form-card-title">👤 Applicant & Loan Details</div>
+    """, unsafe_allow_html=True)
     
-    with st.container():
-        subcol1, subcol2 = st.columns(2)
-        with subcol1:
-            age = st.number_input(
-                "Applicant Age",
-                min_value=18,
-                max_value=100,
-                value=def_age,
-                step=1,
-                help="Applicant age in completed years."
-            )
-            residence_type = st.selectbox(
-                "Residence Status",
-                ["Owned", "Rented", "Mortgage"],
-                index=["Owned", "Rented", "Mortgage"].index(def_res),
-                help="Current residential stability indicator."
-            )
-        with subcol2:
-            income = st.number_input(
-                "Annual Income (₹)",
-                min_value=10000,
-                max_value=50000000,
-                value=def_income,
-                step=50000,
-                help="Total verified gross annual income."
-            )
-            loan_purpose = st.selectbox(
-                "Loan Purpose",
-                ["Education", "Home", "Auto", "Personal"],
-                index=["Education", "Home", "Auto", "Personal"].index(def_purp),
-                help="Underlying borrowing purpose."
-            )
+    r1_c1, r1_c2 = st.columns(2)
+    with r1_c1:
+        age = st.number_input("Age", min_value=18, max_value=100, value=def_age, step=1)
+        residence_type = st.selectbox("Residence Type", ["Owned", "Rented", "Mortgage"], index=["Owned", "Rented", "Mortgage"].index(def_res))
+    with r1_c2:
+        income = st.number_input("Annual Income (₹)", min_value=10000, max_value=50000000, value=def_income, step=50000)
+        loan_purpose = st.selectbox("Loan Purpose", ["Home", "Auto", "Education", "Personal"], index=["Home", "Auto", "Education", "Personal"].index(def_purp))
 
-        subcol3, subcol4 = st.columns(2)
-        with subcol3:
-            loan_amount = st.number_input(
-                "Requested Loan Amount (₹)",
-                min_value=10000,
-                max_value=100000000,
-                value=def_loan,
-                step=50000,
-                help="Total principal amount applied for."
-            )
-            loan_type = st.selectbox(
-                "Loan Type",
-                ["Secured", "Unsecured"],
-                index=["Secured", "Unsecured"].index(def_type),
-                help="Collateral-backed vs unsecured credit facility."
-            )
-        with subcol4:
-            loan_tenure_months = st.number_input(
-                "Loan Tenure (Months)",
-                min_value=6,
-                max_value=360,
-                value=def_tenure,
-                step=6,
-                help="Requested repayment horizon in months."
-            )
-
-        # Dynamic LTI Ratio Indicator
-        lti_ratio = loan_amount / income if income > 0 else 0
-        lti_status = "Safe (< 2.0x)" if lti_ratio < 2.0 else ("Moderate (2.0x - 4.0x)" if lti_ratio <= 4.0 else "High Leverage (> 4.0x)")
-        lti_color = "#10b981" if lti_ratio < 2.0 else ("#f59e0b" if lti_ratio <= 4.0 else "#ef4444")
+    r2_c1, r2_c2 = st.columns(2)
+    with r2_c1:
+        loan_amount = st.number_input("Loan Amount (₹)", min_value=10000, max_value=100000000, value=def_loan, step=50000)
+        loan_type = st.selectbox("Loan Type", ["Secured", "Unsecured"], index=["Secured", "Unsecured"].index(def_type))
+    with r2_c2:
+        loan_tenure_months = st.number_input("Tenure (Months)", min_value=6, max_value=360, value=def_tenure, step=6)
         
+        # Clean Loan to Income Ratio
+        lti_ratio = loan_amount / income if income > 0 else 0
+        st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
         st.markdown(f"""
-        <div class="ratio-box">
-            <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;">CALCULATED LOAN-TO-INCOME (LTI):</span><br/>
-            <span style="font-size: 1.4rem; font-weight: 800; color: {lti_color};">{lti_ratio:.2f}x</span>
-            <span style="font-size: 0.85rem; font-weight: 600; color: {lti_color}; margin-left: 0.5rem;">({lti_status})</span>
+        <div class="metric-inline">
+            Loan to Income (LTI): <strong>{lti_ratio:.2f}x</strong>
         </div>
         """, unsafe_allow_html=True)
 
-with col_right:
-    st.markdown("### 📊 2. Credit Bureau & Repayment History")
-    
-    with st.container():
-        bcol1, bcol2 = st.columns(2)
-        with bcol1:
-            credit_utilization_ratio = st.slider(
-                "Credit Utilization Ratio (%)",
-                min_value=0,
-                max_value=100,
-                value=def_util,
-                step=1,
-                help="Revolving credit balance divided by total available credit limit."
-            )
-            delinquency_ratio = st.slider(
-                "Delinquency Ratio (%)",
-                min_value=0,
-                max_value=100,
-                value=def_delinq,
-                step=1,
-                help="Percentage of past payment cycles with overdue status."
-            )
-        with bcol2:
-            avg_dpd_per_delinquency = st.number_input(
-                "Average Days Past Due (DPD)",
-                min_value=0,
-                max_value=365,
-                value=def_dpd,
-                step=1,
-                help="Average number of days payments remained overdue per delinquency event."
-            )
-            num_open_accounts = st.number_input(
-                "Active Open Accounts",
-                min_value=1,
-                max_value=10,
-                value=def_open_acc,
-                step=1,
-                help="Number of active active credit facilities reported by the bureau."
-            )
+with col_bureau:
+    st.markdown("""
+    <div class="form-card-title">📊 Credit & Repayment History</div>
+    """, unsafe_allow_html=True)
 
-        st.caption("💡 *Note: Delinquency Ratio, Avg DPD, and Credit Utilization are primary predictors identified by Information Value (IV) analysis.*")
+    b1_c1, b1_c2 = st.columns(2)
+    with b1_c1:
+        credit_utilization_ratio = st.slider("Credit Card Utilization (%)", min_value=0, max_value=100, value=def_util, step=1)
+        delinquency_ratio = st.slider("Past Delinquency Rate (%)", min_value=0, max_value=100, value=def_delinq, step=1)
+    with b1_c2:
+        avg_dpd_per_delinquency = st.number_input("Avg Overdue Days (DPD)", min_value=0, max_value=365, value=def_dpd, step=1)
+        num_open_accounts = st.number_input("Active Credit Accounts", min_value=1, max_value=10, value=def_open_acc, step=1)
 
-# ----------------- CALCULATION TRIGGER -----------------
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+    st.caption("Tip: Applicants with consistent on-time payments and utilization below 30% typically achieve higher credit scores.")
+
+# ----------------- ACTION BUTTON -----------------
 st.markdown("<br/>", unsafe_allow_html=True)
-calc_btn = st.button("⚡ Evaluate Credit Risk & Underwriting Decision", type="primary", use_container_width=True)
+evaluate_click = st.button("Calculate Credit Score", type="primary", use_container_width=True)
 
 # ----------------- RESULT SECTION -----------------
-if calc_btn:
-    with st.spinner("Analyzing applicant risk profile against calibrated scorecard..."):
+if evaluate_click:
+    with st.spinner("Calculating credit score..."):
         probability, credit_score, rating = predict(
             age, income, loan_amount, loan_tenure_months, avg_dpd_per_delinquency,
             delinquency_ratio, credit_utilization_ratio, num_open_accounts,
             residence_type, loan_purpose, loan_type
         )
 
-    # Theme parameters based on rating
+    # Clean, Standard Tier Styling (Soft Tones)
     if rating == "Excellent":
-        tier_class = "rating-excellent"
-        badge_icon = "🟢"
-        recommendation = "✅ INSTANT APPROVAL — Prime Borrower. Qualifies for optimal tier-1 interest rates and maximum tenure flexibility."
-        decision_box_color = "#10b981"
+        badge_html = '<span class="badge-excellent">Excellent Credit</span>'
+        decision_class = "decision-excellent"
+        decision_text = "Approved — Prime eligibility with preferred terms and standard processing."
     elif rating == "Good":
-        tier_class = "rating-good"
-        badge_icon = "🔵"
-        recommendation = "🟢 APPROVE — Low to Moderate Risk. Standard terms and regular underwriting guidelines apply."
-        decision_box_color = "#3b82f6"
+        badge_html = '<span class="badge-good">Good Credit</span>'
+        decision_class = "decision-good"
+        decision_text = "Approved — Qualifies for standard loan products and terms."
     elif rating == "Average":
-        tier_class = "rating-average"
-        badge_icon = "🟡"
-        recommendation = "⚠️ CONDITIONAL APPROVAL / MANUAL REVIEW — Moderate Risk. Require secondary guarantor, income verification, or additional collateral."
-        decision_box_color = "#f59e0b"
+        badge_html = '<span class="badge-average">Moderate Credit</span>'
+        decision_class = "decision-average"
+        decision_text = "Review Recommended — Standard approval subject to additional document or income verification."
     else:
-        tier_class = "rating-poor"
-        badge_icon = "🔴"
-        recommendation = "❌ DECLINE — High Default Probability. Risk profile exceeds acceptable institutional tolerance threshold."
-        decision_box_color = "#ef4444"
+        badge_html = '<span class="badge-poor">High Risk</span>'
+        decision_class = "decision-poor"
+        decision_text = "Eligibility Criteria Not Met — High likelihood of default based on current profile."
 
-    st.markdown("---")
-    st.markdown("## 📋 Underwriting Risk Assessment Report")
-
-    # Metrics Row
-    m1, m2, m3 = st.columns(3)
+    st.markdown('<div class="result-container">', unsafe_allow_html=True)
     
+    # Clean Top Metrics Row
+    m1, m2, m3 = st.columns(3)
     with m1:
         st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-title">CALIBRATED CREDIT SCORE</div>
-            <div class="metric-value">{credit_score} <span style="font-size: 1rem; color: #94a3b8;">/ 900</span></div>
-            <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Scale: 300 (High Risk) - 900 (Prime)</span>
+        <div class="score-card">
+            <div class="score-label">Credit Score</div>
+            <div class="score-number">{credit_score}</div>
+            <div class="score-scale">Scale: 300 to 900</div>
         </div>
         """, unsafe_allow_html=True)
-
     with m2:
         st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-title">DEFAULT PROBABILITY (PD)</div>
-            <div class="metric-value" style="color: {decision_box_color};">{probability:.2%}</div>
-            <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Model Confidence: Macro F1 0.946</span>
+        <div class="score-card">
+            <div class="score-label">Risk Category</div>
+            <div style="margin-top: 0.5rem; margin-bottom: 0.5rem;">{badge_html}</div>
+            <div class="score-scale">Tier Assessment</div>
         </div>
         """, unsafe_allow_html=True)
-
     with m3:
         st.markdown(f"""
-        <div class="metric-card {tier_class}">
-            <div class="metric-title" style="color: inherit;">RISK RATING TIER</div>
-            <div class="metric-value" style="color: inherit;">{badge_icon} {rating}</div>
-            <span style="font-size: 0.85rem; font-weight: 600;">Category: {rating} Credit Quality</span>
+        <div class="score-card">
+            <div class="score-label">Estimated Risk</div>
+            <div class="score-number">{probability:.1%}</div>
+            <div class="score-scale">Default Likelihood</div>
         </div>
         """, unsafe_allow_html=True)
 
-    # Score Gauge Progress Bar
-    score_percentage = (credit_score - 300) / 600
-    st.progress(max(0.0, min(1.0, score_percentage)))
+    # Score Position Bar
+    st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+    progress_val = max(0.0, min(1.0, (credit_score - 300) / 600))
+    st.progress(progress_val)
+    
     col_p1, col_p2, col_p3, col_p4 = st.columns(4)
     col_p1.caption("300 — Poor")
     col_p2.caption("500 — Average")
     col_p3.caption("650 — Good")
     col_p4.caption("750 to 900 — Excellent")
 
-    # Automated Underwriting Directive
+    # Simple Human Decision Banner
     st.markdown(f"""
-    <div style="background: rgba(15, 23, 42, 0.04); border-left: 6px solid {decision_box_color}; padding: 1.2rem 1.5rem; border-radius: 8px; margin-top: 1rem; margin-bottom: 1.5rem;">
-        <span style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #64748b;">Underwriting Recommendation Directive:</span>
-        <div style="font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-top: 0.3rem;">{recommendation}</div>
+    <div class="decision-banner {decision_class}">
+        <strong>Loan Assessment:</strong> {decision_text}
     </div>
     """, unsafe_allow_html=True)
 
-    # Detailed Factor Evaluation
-    with st.expander("🔍 Detailed Risk Drivers & Feature Breakdown", expanded=True):
-        fcol1, fcol2 = st.columns(2)
-        with fcol1:
-            st.markdown("**🛡️ Positive / Mitigating Factors:**")
+    # Clean Observations Summary (Human Friendly)
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+    with st.expander("Summary Observations", expanded=True):
+        obs_col1, obs_col2 = st.columns(2)
+        with obs_col1:
+            st.markdown("**Favorable Highlights:**")
             positives = []
             if lti_ratio < 2.5:
-                positives.append(f"Low Debt Burden (LTI: {lti_ratio:.2f}x)")
+                positives.append(f"Manageable loan-to-income balance ({lti_ratio:.2f}x)")
             if credit_utilization_ratio <= 30:
-                positives.append(f"Healthy Credit Utilization ({credit_utilization_ratio}%)")
+                positives.append(f"Healthy credit utilization ({credit_utilization_ratio}%)")
             if delinquency_ratio == 0:
-                positives.append("Clean Repayment Record (0% Delinquency)")
+                positives.append("Clean past repayment record")
             if residence_type == "Owned":
-                positives.append("Property Asset Stability (Homeowner)")
+                positives.append("Homeowner stability")
             if loan_type == "Secured":
-                positives.append("Secured Loan Structure (Collateralized)")
-            
+                positives.append("Secured loan structure")
+
             if positives:
                 for p in positives:
-                    st.markdown(f"- ✅ {p}")
+                    st.markdown(f"- {p}")
             else:
-                st.markdown("*No significant mitigating factors detected.*")
+                st.markdown("- Standard application parameters")
 
-        with fcol2:
-            st.markdown("**⚠️ Elevated Risk Factors:**")
-            concerns = []
+        with obs_col2:
+            st.markdown("**Points to Note:**")
+            notes = []
             if lti_ratio >= 3.5:
-                concerns.append(f"Elevated Leverage Ratio (LTI: {lti_ratio:.2f}x)")
+                notes.append(f"High loan request relative to annual income ({lti_ratio:.2f}x)")
             if credit_utilization_ratio > 50:
-                concerns.append(f"High Credit Utilization ({credit_utilization_ratio}%)")
-            if delinquency_ratio > 20:
-                concerns.append(f"History of Past Delinquencies ({delinquency_ratio}%)")
+                notes.append(f"High revolving credit card balance ({credit_utilization_ratio}%)")
+            if delinquency_ratio > 15:
+                notes.append(f"Past overdue repayment history ({delinquency_ratio}%)")
             if avg_dpd_per_delinquency >= 30:
-                concerns.append(f"High Severity Delinquency (Avg DPD: {avg_dpd_per_delinquency} days)")
+                notes.append(f"Significant overdue delay ({avg_dpd_per_delinquency} days past due)")
             if loan_type == "Unsecured":
-                concerns.append("Unsecured Credit Facility")
-            
-            if concerns:
-                for c in concerns:
-                    st.markdown(f"- ⚠️ {c}")
-            else:
-                st.markdown("*No critical risk flags observed.*")
+                notes.append("Unsecured lending category")
 
-    # Application Audit Trail
-    with st.expander("📄 Application Metadata & Audit Trail"):
-        st.json({
-            "applicant_age": age,
-            "annual_income_inr": income,
-            "requested_loan_inr": loan_amount,
-            "loan_to_income_ratio": round(lti_ratio, 3),
-            "loan_tenure_months": loan_tenure_months,
-            "residence_type": residence_type,
-            "loan_purpose": loan_purpose,
-            "loan_type": loan_type,
-            "credit_utilization_pct": credit_utilization_ratio,
-            "delinquency_ratio_pct": delinquency_ratio,
-            "avg_dpd_per_delinquency": avg_dpd_per_delinquency,
-            "number_of_open_accounts": num_open_accounts,
-            "computed_default_probability": round(probability, 5),
-            "calibrated_credit_score": credit_score,
-            "risk_rating": rating,
-            "model_version": "1.2.0-logistic-optuna"
-        })
+            if notes:
+                for n in notes:
+                    st.markdown(f"- {n}")
+            else:
+                st.markdown("- No significant risk concerns noted")
+
+    st.markdown('</div>', unsafe_allow_html=True)
