@@ -5,7 +5,7 @@ from prediction_helper import predict
 
 # Page configuration
 st.set_page_config(
-    page_title="Lauki Finance — Credit Risk Intelligence",
+    page_title="Credit Risk Modeling & Scoring Engine",
     page_icon="🏦",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -160,7 +160,7 @@ st.markdown("""
 
 # ----------------- SIDEBAR -----------------
 with st.sidebar:
-    st.markdown("### 🏦 Lauki Underwriting System")
+    st.markdown("### 🏦 Credit Risk Engine")
     st.caption("AI-Powered Risk Decisioning v1.2")
     st.markdown("---")
 
@@ -187,7 +187,7 @@ with st.sidebar:
     - **Score Range**: 300 to 900
     """)
     st.markdown("---")
-    st.caption("© Lauki Financial Services Ltd. All rights reserved.")
+    st.caption("© Credit Risk Modeling & Scoring Engine. All rights reserved.")
 
 # Preset Default Value Mappings
 if preset_choice == "🌟 Prime Borrower (Low Risk)":
@@ -214,7 +214,7 @@ else:
 # ----------------- HERO HEADER -----------------
 st.markdown("""
 <div class="hero-container">
-    <div class="hero-title">🏦 Lauki Finance: Credit Risk & Scoring Engine</div>
+    <div class="hero-title">🏦 Credit Risk Modeling & Scoring Engine</div>
     <div class="hero-subtitle">
         Enterprise-grade risk assessment platform translating borrower behavioral history, leverage, and demographics into calibrated Credit Scores and automated underwriting recommendations.
     </div>

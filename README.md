@@ -1,4 +1,4 @@
-# 📊 Lauki Finance — End-to-End Credit Risk Modeling & Scoring Engine
+# 📊 Credit Risk Modeling & Scoring Engine
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![Framework](https://img.shields.io/badge/Streamlit-App-FF4B4B.svg?logo=streamlit&logoColor=white)](https://streamlit.io/)
@@ -11,7 +11,7 @@
 
 ## 📌 Executive Summary
 
-**Lauki Finance Credit Risk Modeling System** is an enterprise-grade financial machine learning solution engineered to evaluate loan applicant default risk, compute standardized credit scores (300–900 scale), and assign risk ratings in real time.
+**Credit Risk Modeling & Scoring Engine** is an enterprise-grade financial machine learning solution engineered to evaluate loan applicant default risk, compute standardized credit scores (300–900 scale), and assign risk ratings in real time.
 
 Built on historical applicant data, active loan profiles, and credit bureau records (**50,000+ borrowers**), this project bridges traditional banking scorecards with modern automated machine learning:
 - Resolves acute data challenges: severe class imbalance, multicollinearity, and skewed distributions.
@@ -248,8 +248,8 @@ Where:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/barbadikaramey-cloud/Lauki-Finance-Credit-Risk-Modeling.git
-cd Lauki-Finance-Credit-Risk-Modeling
+git clone https://github.com/barbadikaramey-cloud/Credit-Risk-Modeling-Scoring-Engine.git
+cd Credit-Risk-Modeling-Scoring-Engine
 ```
 
 ### 2. Create and Activate a Virtual Environment
